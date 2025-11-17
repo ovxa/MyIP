@@ -63,7 +63,7 @@ import { ref, computed, onMounted, reactive, watch } from 'vue';
 import { useMainStore } from '@/store';
 import { useI18n } from 'vue-i18n';
 import { trackEvent } from '@/utils/use-analytics';
-import { transformDataFromIPapi } from '@/utils/transform-ip-data.js';
+import { fetchIPData } from '@/utils/ip-api-client.js';
 import getCountryName from '@/utils/country-name.js';
 
 const { t } = useI18n();
@@ -187,31 +187,31 @@ const determineNATType = (candidate) => {
   }
 };
 
-// 通过 Maxmind 获取 IP 地区归属
+// 获取 IP 地区归属
 const fetchCountryCode = async (ip) => {
-  let setLang = lang.value;
-  if (setLang === 'zh') {
-    setLang = 'zh-CN';
+  // 使用第一个可用的数据源
+  const sources = store.ipDBs.filter(source => source.enabled);
+  if (sources.length === 0) {
+    console.error("No IP data sources available");
+    return ['n/a', 'N/A'];
   }
-  const source = store.ipDBs.find(source => source.text === "MaxMind");
 
   try {
-    const url = store.getDbUrl(source.id, ip, setLang);
-    const response = await fetch(url);
-    const data = await response.json();
-    const ipData = transformDataFromIPapi(data, source.id, t, lang.value);
+    // 使用前端直接调用 API
+    const ipData = await fetchIPData(sources[0].id, ip, store.apiKey);
 
     if (ipData) {
-      let country_code = ipData.country_code.toLowerCase();
+      let country_code = ipData.country_code ? ipData.country_code.toLowerCase() : 'n/a';
       let country = ipData.country_code || 'N/A';
       if (country !== 'N/A') {
-        country = getCountryName(ipData.country_code, lang.value); 
+        country = getCountryName(ipData.country_code, lang.value);
       }
       return [country_code, country];
     }
   } catch (error) {
     console.error("Error fetching IP country code", error);
   }
+  return ['n/a', 'N/A'];
 }
 
 

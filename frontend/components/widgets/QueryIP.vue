@@ -180,10 +180,9 @@ import { ref, computed, watch, nextTick, onMounted } from 'vue';
 import { useMainStore } from '@/store';
 import { Modal } from 'bootstrap';
 import { isValidIP } from '@/utils/valid-ip.js';
-import { transformDataFromIPapi } from '@/utils/transform-ip-data.js';
 import { useI18n } from 'vue-i18n';
 import { trackEvent } from '@/utils/use-analytics';
-import { authenticatedFetch } from '@/utils/authenticated-fetch';
+import { fetchIPData } from '@/utils/ip-api-client.js';
 
 const { t } = useI18n();
 
@@ -251,16 +250,15 @@ const setupModalFocus = () => {
 
 // 获取 IP 信息
 const fetchIPForModal = async (ip, sourceID = null) => {
-    let selectedLang = lang.value === 'zh' ? 'zh-CN' : lang.value;
     sourceID = ipGeoSource.value;
-    const sources = store.ipDBs;
+    const sources = store.ipDBs.filter(source => source.enabled);
 
     for (const source of sources) {
         if (sourceID && source.id !== sourceID) continue;
         try {
-            const url = store.getDbUrl(source.id, ip, selectedLang);
-            const response = await authenticatedFetch(url);
-            modalQueryResult.value = transformDataFromIPapi(response, source.id, t, lang.value);
+            // 使用前端直接调用 API
+            const response = await fetchIPData(source.id, ip, store.apiKey);
+            modalQueryResult.value = response;
             isChecking.value = "idle";
             break;
         } catch (error) {
