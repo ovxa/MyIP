@@ -11,10 +11,9 @@ import mapHandler from './api/google-map.js';
 // IP Info
 import ipinfoHandler from './api/ipinfo-io.js';
 import ipapicomHandler from './api/ipapi-com.js';
-import ipCheckingHandler from './api/ipcheck-ing.js';
 import ipapiisHandler from './api/ipapi-is.js';
 import ip2locationHandler from './api/ip2location-io.js';
-import ipsbHandler from './api/ip-sb.js';
+import ipgeolocationHandler from './api/ipgeolocation-io.js';
 import maxmindHandler from './api/maxmind.js';
 // Others
 import cfHander from './api/cf-radar.js';
@@ -154,16 +153,15 @@ app.use(express.json());
 app.get('/api/map', mapHandler);
 app.get('/api/ipinfo', ipinfoHandler);
 app.get('/api/ipapicom', ipapicomHandler);
-app.get('/api/ipchecking', ipCheckingHandler);
-app.get('/api/ipsb', ipsbHandler);
+app.get('/api/ipapiis', ipapiisHandler);
+app.get('/api/ip2location', ip2locationHandler);
+app.get('/api/ipgeolocation', ipgeolocationHandler);
+app.get('/api/maxmind', maxmindHandler);
 app.get('/api/cfradar', cfHander);
 app.get('/api/dnsresolver', dnsResolver);
 app.get('/api/whois', getWhois);
-app.get('/api/ipapiis', ipapiisHandler);
-app.get('/api/ip2location', ip2locationHandler);
 app.get('/api/invisibility', invisibilitytestHandler);
 app.get('/api/macchecker', macChecker);
-app.get('/api/maxmind', maxmindHandler);
 app.get('/api/getuserinfo', getUserinfo);
 app.put('/api/updateuserachievement', updateUserAchievement);
 
