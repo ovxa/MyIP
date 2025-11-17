@@ -26,9 +26,8 @@ import { useMainStore } from '@/store';
 import { useI18n } from 'vue-i18n';
 import { trackEvent } from '@/utils/use-analytics';
 import { isValidIP } from '@/utils/valid-ip.js';
-import { transformDataFromIPapi } from '@/utils/transform-ip-data.js';
 import { getIPFromIPIP, getIPFromCloudflare_V4, getIPFromCloudflare_V6, getIPFromIPChecking64, getIPFromIPChecking4, getIPFromIPChecking6 } from '@/utils/getips';
-import { authenticatedFetch } from '@/utils/authenticated-fetch';
+import { fetchIPData } from '@/utils/ip-api-client.js';
 import IPCard from './ip-infos/IPCard.vue';
 
 
@@ -190,10 +189,6 @@ const fetchIPDetails = async (cardIndex, ip, sourceID = null) => {
   sourceID = sourceID || ipGeoSource.value;
   const card = ipDataCards[cardIndex];
   card.ip = ip;
-  let setLang = lang.value;
-  if (setLang === 'zh') {
-    setLang = 'zh-CN';
-  }
 
   // 检查缓存中是否已有该 IP 的数据
   if (ipDataCache.has(ip)) {
@@ -221,9 +216,8 @@ const fetchIPDetails = async (cardIndex, ip, sourceID = null) => {
     while (attempts < sources.length) {
       const source = sources[currentSourceIndex];
       try {
-        const url = store.getDbUrl(source.id, ip, setLang);
-        const response = await authenticatedFetch(url);
-        const cardData = transformDataFromIPapi(response, source.id, t, lang.value);
+        // 使用前端直接调用 API
+        const cardData = await fetchIPData(source.id, ip, store.apiKey);
 
         if (cardData) {
           ipGeoSource.value = source.id;

@@ -78,8 +78,8 @@ export const useMainStore = defineStore('main', {
     },
     currentSection: 'IPInfo',
     ipDBs: [
-      { id: 0, text: 'IPGeolocation.io', url: '/api/ipgeolocation?ip={{ip}}&key={{key}}', enabled: true },
-      { id: 1, text: 'Cloudflare', url: '/api/cloudflare?ip={{ip}}', enabled: true },
+      { id: 0, text: 'IPGeolocation.io', enabled: true },
+      { id: 1, text: 'Cloudflare', enabled: true },
     ],
   }),
 
@@ -198,6 +198,7 @@ export const useMainStore = defineStore('main', {
     },
     // 从服务器获取配置
     fetchConfigs() {
+      // 尝试从后端获取配置，如果失败则使用默认配置（用于 GitHub Pages 等静态部署）
       fetch('/api/configs')
         .then(response => {
           if (!response.ok) {
@@ -208,7 +209,13 @@ export const useMainStore = defineStore('main', {
         .then(data => {
           this.configs = data;
         })
-        .catch(error => console.error('Fetching configs failed: ', error));
+        .catch(error => {
+          console.log('Backend not available, using default configs for static deployment');
+          // 使用默认配置
+          this.configs = {
+            originalSite: window.location.origin
+          };
+        });
     },
     // Change Section
     changeSection(section) {
