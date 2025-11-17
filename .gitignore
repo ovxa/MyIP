@@ -25,7 +25,6 @@ dist-ssr
 .env
 .vscode/extensions.json
 
-package-lock.json
 localtest
 
 .VSCodeCounter
