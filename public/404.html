@@ -23,9 +23,27 @@
     // Single Page Apps for GitHub Pages
     // MIT License
     // https://github.com/rafgraph/spa-github-pages
-    var pathSegmentsToKeep = 0;
 
+    // Auto-detect if this is a project page (username.github.io/repo-name)
+    // or a user page (username.github.io)
+    var pathSegmentsToKeep = 0;
     var l = window.location;
+
+    // For project pages, we need to keep the repo name in the path
+    // Check if the first path segment exists and is not empty
+    var pathSegments = l.pathname.split('/').filter(function(segment) {
+      return segment !== '';
+    });
+
+    // If we're on a project page (e.g., /MyIP/...), keep the first segment
+    if (pathSegments.length > 0 && !l.hostname.match(/^[^.]+\.github\.io$/)) {
+      pathSegmentsToKeep = 1;
+    } else if (pathSegments.length > 0) {
+      // Additional check: if hostname is username.github.io but path has segments,
+      // it's likely a project page
+      pathSegmentsToKeep = 1;
+    }
+
     l.replace(
       l.protocol + '//' + l.hostname + (l.port ? ':' + l.port : '') +
       l.pathname.split('/').slice(0, 1 + pathSegmentsToKeep).join('/') + '/?/' +
