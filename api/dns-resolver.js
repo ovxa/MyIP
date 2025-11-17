@@ -117,8 +117,15 @@ const dnsResolver = async (req, res) => {
         return res.status(400).send({ error: 'Missing hostname parameter' });
     }
 
-    if (!hostname.includes('.')) {
-        return res.status(400).send({ error: 'Invalid hostname' });
+    // 更严格的域名验证
+    const domainPattern = /^(?!-)[A-Za-z0-9-]{1,63}(?<!-)(\.[A-Za-z0-9-]{1,63}(?<!-))*\.[A-Za-z]{2,}$/;
+    if (!domainPattern.test(hostname)) {
+        return res.status(400).send({ error: 'Invalid hostname format' });
+    }
+
+    // 额外的安全检查：限制主机名长度
+    if (hostname.length > 253) {
+        return res.status(400).send({ error: 'Hostname too long' });
     }
 
     const dnsPromises = Object.entries(dnsServers).map(([name, ip]) => resolveDns(hostname, type, name, ip));

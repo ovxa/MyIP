@@ -3,11 +3,20 @@ import { isValidIP } from '../common/valid-ip.js';
 import { refererCheck } from '../common/referer-check.js';
 
 let cityLookup, asnLookup;
+let dbInitialized = false;
 
 // 异步初始化数据库
 async function initDatabases() {
-    cityLookup = await maxmind.open('./common/maxmind-db/GeoLite2-City.mmdb');
-    asnLookup = await maxmind.open('./common/maxmind-db/GeoLite2-ASN.mmdb');
+    try {
+        cityLookup = await maxmind.open('./common/maxmind-db/GeoLite2-City.mmdb');
+        asnLookup = await maxmind.open('./common/maxmind-db/GeoLite2-ASN.mmdb');
+        dbInitialized = true;
+        console.log('MaxMind databases initialized successfully');
+    } catch (error) {
+        console.error('Failed to initialize MaxMind databases:', error.message);
+        console.error('MaxMind API will return errors until databases are properly configured');
+        dbInitialized = false;
+    }
 }
 
 initDatabases();
@@ -18,6 +27,11 @@ export default (req, res) => {
     const referer = req.headers.referer;
     if (!refererCheck(referer)) {
         return res.status(403).json({ error: referer ? 'Access denied' : 'What are you doing?' });
+    }
+
+    // 检查数据库是否已初始化
+    if (!dbInitialized || !cityLookup || !asnLookup) {
+        return res.status(503).json({ error: 'MaxMind database not available' });
     }
 
     const ip = req.query.ip;

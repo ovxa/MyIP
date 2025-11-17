@@ -50,19 +50,38 @@ export default async (req, res) => {
 function modifyJson(json) {
     const { ip, city, region, country, loc, org } = json;
 
-    const countryName = countryLookup.byIso(country).country || 'Unknown Country';
+    // 安全地查找国家名称
+    let countryName = 'Unknown Country';
+    if (country) {
+        const countryData = countryLookup.byIso(country);
+        countryName = countryData?.country || 'Unknown Country';
+    }
 
-    const [latitude, longitude] = loc.split(',').map(Number);
-    const [asn, ...orgName] = org.split(' ');
-    const modifiedOrg = orgName.join(' ');
+    // 安全地解析经纬度
+    let latitude = 'N/A';
+    let longitude = 'N/A';
+    if (loc && loc.includes(',')) {
+        const [lat, lon] = loc.split(',').map(Number);
+        latitude = lat;
+        longitude = lon;
+    }
+
+    // 安全地解析 ASN 和组织信息
+    let asn = 'N/A';
+    let modifiedOrg = 'N/A';
+    if (org) {
+        const [asnPart, ...orgName] = org.split(' ');
+        asn = asnPart || 'N/A';
+        modifiedOrg = orgName.length > 0 ? orgName.join(' ') : 'N/A';
+    }
 
     return {
         ip,
-        city,
-        region,
-        country,
+        city: city || 'N/A',
+        region: region || 'N/A',
+        country: country || 'N/A',
         country_name: countryName,
-        country_code: country,
+        country_code: country || 'N/A',
         latitude,
         longitude,
         asn,
