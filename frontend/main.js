@@ -27,6 +27,9 @@ app.use(router);
 // 在应用启动时设置语言
 store.lang = i18n.global.locale;
 
+// 从 URL 加载 API key
+store.loadApiKeyFromUrl();
+
 // 检测操作系统
 const os = detectOS();
 
