@@ -3,9 +3,13 @@ import { refererCheck } from '../common/referer-check.js';
 
 // 创建一个用于设置 headers 的通用函数
 function createFetchOptions() {
+    const apiKey = process.env.CLOUDFLARE_API || '';
+    if (!apiKey) {
+        throw new Error('Cloudflare API key not configured');
+    }
     return {
         headers: {
-            'Authorization': `Bearer ${process.env.CLOUDFLARE_API}`,
+            'Authorization': `Bearer ${apiKey}`,
             'Content-Type': 'application/json'
         }
     };

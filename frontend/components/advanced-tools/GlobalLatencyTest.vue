@@ -281,7 +281,13 @@ const drawMap = async () => {
 
 // 清除地图数据
 const cleanMap = () => {
-  document.getElementById('svgMap').innerHTML = '';
+  const svgMapElement = document.getElementById('svgMap');
+  if (svgMapElement) {
+    // 使用更安全的方式清空 DOM
+    while (svgMapElement.firstChild) {
+      svgMapElement.removeChild(svgMapElement.firstChild);
+    }
+  }
 };
 
 </script>

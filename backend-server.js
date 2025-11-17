@@ -37,6 +37,23 @@ const speedLimitSet = parseInt(process.env.SECURITY_DELAY_AFTER || 0, 10);
 
 app.set('trust proxy', 1);
 
+// 设置安全头部
+app.use((req, res, next) => {
+    // 基本安全头部
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    res.setHeader('X-Frame-Options', 'DENY');
+    res.setHeader('X-XSS-Protection', '1; mode=block');
+    res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+
+    // Content Security Policy (根据项目需求适当调整)
+    res.setHeader(
+        'Content-Security-Policy',
+        "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https:;"
+    );
+
+    next();
+});
+
 // 获取客户端 IP 的辅助函数
 function getClientIp(req) {
     const cfIp = req.headers['cf-connecting-ip']; // Cloudflare IP
