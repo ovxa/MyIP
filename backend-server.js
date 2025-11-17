@@ -8,13 +8,9 @@ import rateLimit from 'express-rate-limit';
 
 // Backend APIs
 import mapHandler from './api/google-map.js';
-// IP Info
-import ipinfoHandler from './api/ipinfo-io.js';
-import ipapicomHandler from './api/ipapi-com.js';
-import ipapiisHandler from './api/ipapi-is.js';
-import ip2locationHandler from './api/ip2location-io.js';
+// IP Info - Only Cloudflare and IPGeolocation.io
 import ipgeolocationHandler from './api/ipgeolocation-io.js';
-import maxmindHandler from './api/maxmind.js';
+import cloudflareIpHandler from './api/cloudflare-ip.js';
 // Others
 import cfHander from './api/cf-radar.js';
 import dnsResolver from './api/dns-resolver.js';
@@ -149,14 +145,11 @@ if (speedLimitSet !== 0) {
 
 app.use(express.json());
 
-// APIs
-app.get('/api/map', mapHandler);
-app.get('/api/ipinfo', ipinfoHandler);
-app.get('/api/ipapicom', ipapicomHandler);
-app.get('/api/ipapiis', ipapiisHandler);
-app.get('/api/ip2location', ip2locationHandler);
+// APIs - IP Geolocation (Only Cloudflare and IPGeolocation.io)
 app.get('/api/ipgeolocation', ipgeolocationHandler);
-app.get('/api/maxmind', maxmindHandler);
+app.get('/api/cloudflare', cloudflareIpHandler);
+// Other APIs
+app.get('/api/map', mapHandler);
 app.get('/api/cfradar', cfHander);
 app.get('/api/dnsresolver', dnsResolver);
 app.get('/api/whois', getWhois);

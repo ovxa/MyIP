@@ -20,15 +20,17 @@ export default (req, res) => {
         return res.status(400).json({ error: 'Invalid IP address' });
     }
 
-    // 检查 API Key 是否配置
-    const apiKey = process.env.IPGEOLOCATION_API_KEY || '';
+    // 优先使用 URL 参数中的 key，其次使用环境变量
+    let apiKey = req.query.key || process.env.IPGEOLOCATION_API_KEY || '';
+
     if (!apiKey) {
-        return res.status(500).json({ error: 'API key not configured' });
+        return res.status(400).json({ error: 'API key required. Please provide key parameter in URL or configure IPGEOLOCATION_API_KEY environment variable' });
     }
 
+    // 支持多个 key（逗号分隔）
     const keys = apiKey.split(',').filter(k => k.trim());
     if (keys.length === 0) {
-        return res.status(500).json({ error: 'No valid API key found' });
+        return res.status(400).json({ error: 'No valid API key found' });
     }
     const key = keys[Math.floor(Math.random() * keys.length)];
     const url = `https://api.ipgeolocation.io/ipgeo?apiKey=${key}&ip=${ipAddress}`;

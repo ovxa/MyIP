@@ -9,6 +9,7 @@ export const useMainStore = defineStore('main', {
 
   state: () => ({
     lang: 'en',
+    apiKey: '', // API key from URL parameter
     user: null,
     isSignedIn: false,
     triggerAchievements: false,
@@ -77,12 +78,8 @@ export const useMainStore = defineStore('main', {
     },
     currentSection: 'IPInfo',
     ipDBs: [
-      { id: 0, text: 'IPinfo.io', url: '/api/ipinfo?ip={{ip}}', enabled: true },
-      { id: 1, text: 'IP-API.com', url: '/api/ipapicom?ip={{ip}}&lang={{lang}}', enabled: true },
-      { id: 2, text: 'IPAPI.is', url: '/api/ipapiis?ip={{ip}}', enabled: true },
-      { id: 3, text: 'IP2Location.io', url: '/api/ip2location?ip={{ip}}', enabled: true },
-      { id: 4, text: 'IPGeolocation.io', url: '/api/ipgeolocation?ip={{ip}}', enabled: true },
-      { id: 5, text: 'MaxMind', url: '/api/maxmind?ip={{ip}}&lang={{lang}}', enabled: true },
+      { id: 0, text: 'IPGeolocation.io', url: '/api/ipgeolocation?ip={{ip}}&key={{key}}', enabled: true },
+      { id: 1, text: 'Cloudflare', url: '/api/cloudflare?ip={{ip}}', enabled: true },
     ],
   }),
 
@@ -105,7 +102,26 @@ export const useMainStore = defineStore('main', {
     getDbUrl(id, ip, lang) {
       const db = this.ipDBs.find(d => d.id === id);
       if (!db) return null;
-      return db.url.replace('{{ip}}', ip).replace('{{lang}}', lang || 'en');
+      return db.url
+        .replace('{{ip}}', ip)
+        .replace('{{lang}}', lang || 'en')
+        .replace('{{key}}', this.apiKey || '');
+    },
+    // 从 URL 读取 API key
+    loadApiKeyFromUrl() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const key = urlParams.get('key');
+      if (key) {
+        this.apiKey = key;
+        // 保存到 localStorage 以便刷新后保留
+        localStorage.setItem('apiKey', key);
+      } else {
+        // 尝试从 localStorage 读取
+        const savedKey = localStorage.getItem('apiKey');
+        if (savedKey) {
+          this.apiKey = savedKey;
+        }
+      }
     },
     // 从每个组件返回启动状态
     setMountingStatus(key, value) {
