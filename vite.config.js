@@ -9,7 +9,13 @@ dotenv.config();
 const backEndPort = parseInt(process.env.BACKEND_PORT || 11966, 10);
 const frontEndPort = parseInt(process.env.FRONTEND_PORT || 18966, 10);
 
+// GitHub Pages base URL configuration
+// For user/org pages: leave empty or '/'
+// For project pages: set to '/repo-name/'
+const base = process.env.VITE_BASE_URL || '/';
+
 export default defineConfig({
+  base,
   plugins: [
     vue({
       template: {
